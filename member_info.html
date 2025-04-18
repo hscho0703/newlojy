@@ -43,7 +43,9 @@
       userListContainer.innerHTML = '';
 
       db.ref('users/' + user.uid).once('value', snapshot => {
+        console.log("Data Snapshot:", snapshot);
         const userData = snapshot.val();
+        console.log("User Data:", userData);
         if (userData) {
           const listItem = document.createElement('li');
           listItem.classList.add('user-item');
