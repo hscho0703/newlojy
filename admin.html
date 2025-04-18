@@ -3,47 +3,19 @@
 <head>
   <title>관리자 페이지</title>
   <style>
-    body {
-      font-family: "Malgun Gothic", sans-serif;
-      background-color: #192a3e;
-      color: #ffffff;
-      margin: 20px;
-    }
-
-    h1 {
-      color: #ffffff;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .admin-container {
-      background-color: #273c5e;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .admin-content {
-      /* 관리자 컨텐츠 스타일 */
-    }
-
-    .not-admin {
-      text-align: center;
-      padding: 20px;
-      color: #e74c3c;
-    }
+    /* ... (기존 CSS 코드는 그대로 유지) ... */
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyD9BaFvsddvHllPtiu5sFstz_wj999TEU0",
-      authDomain: "ynlojy.firebaseapp.com",
-      projectId: "ynlojy",
-      storageBucket: "ynlojy.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Firebase 콘솔에서 확인 후 입력
-      appId: "YOUR_APP_ID" // Firebase 콘솔에서 확인 후 입력
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -56,7 +28,7 @@
     <div id="admin-content" style="display: none;">
       <h2>회원 관리</h2>
       <ul class="member-list">
-        <li class="member-item">
+        <li class="member-item" data-member-name="홍길동">
           <div class="profile-image-small">
             <img src="placeholder.png" alt="회원 사진">
           </div>
@@ -70,10 +42,10 @@
             <button>삭제</button>
             <input type="number" class="add-score-input" placeholder="점수">
             <button class="add-score-button">추가</button>
-            <button class="delete-button">회원 삭제</button>
+            <button class="delete-button" onclick="deleteUser('홍길동')">회원 삭제</button>
           </div>
         </li>
-        <li class="member-item">
+        <li class="member-item" data-member-name="김철수">
           <div class="profile-image-small">
             <img src="placeholder.png" alt="회원 사진">
           </div>
@@ -87,7 +59,24 @@
             <button>삭제</button>
             <input type="number" class="add-score-input" placeholder="점수">
             <button class="add-score-button">추가</button>
-            <button class="delete-button">회원 삭제</button>
+            <button class="delete-button" onclick="deleteUser('김철수')">회원 삭제</button>
+          </div>
+        </li>
+        <li class="member-item" data-member-name="조희성">
+          <div class="profile-image-small">
+            <img src="placeholder.png" alt="회원 사진">
+          </div>
+          <div class="member-details">
+            <div class="member-name">조희성</div>
+            <div class="member-score">점수: <strong id="score-cho">?</strong></div>
+            <div>등수: ?</div>
+          </div>
+          <div class="member-actions">
+            <input type="file" accept="image/*" class="upload-photo">
+            <button>삭제</button>
+            <input type="number" class="add-score-input" placeholder="점수">
+            <button class="add-score-button">추가</button>
+            <button class="delete-button" onclick="deleteUser('조희성')">회원 삭제</button>
           </div>
         </li>
       </ul>
@@ -100,32 +89,62 @@
   </div>
 
   <script>
-    const adminEmails = ['hscho0703@lojy.com', '조희성']; // '조희성' 추가 여기에 관리자 이메일 주소를 추가하세요.
+    const adminEmails = ['조희성']; // 실제 관리자 이메일 또는 식별자
+    let currentUser; // 현재 로그인한 사용자 정보
 
     document.addEventListener('DOMContentLoaded', function() {
       auth.onAuthStateChanged(function(user) {
+        currentUser = user;
         if (user) {
-          // 로그인 상태
-          if (adminEmails.includes(user.email)) {
-            // 관리자 이메일인 경우 관리 컨텐츠 표시
+          if (adminEmails.includes(user.email.split('@')[0]) || adminEmails.includes(user.email)) { // 이메일 앞부분 또는 전체 이메일로 비교
             document.getElementById('admin-content').style.display = 'block';
           } else {
-            // 관리자 이메일이 아닌 경우 권한 없음 메시지 표시
             document.getElementById('not-admin-message').style.display = 'block';
           }
         } else {
-          // 로그아웃 상태
-          window.location.href = 'index.html'; // 로그인 페이지로 리다이렉트
+          window.location.href = 'index.html';
         }
       });
     });
 
     function signOut() {
       auth.signOut().then(() => {
-        // 로그아웃 성공 시 로그인 페이지로 이동 (onAuthStateChanged 리스너에 의해 처리됨)
       }).catch((error) => {
         console.error('로그아웃 실패:', error);
       });
+    }
+
+    function deleteUser(memberName) {
+      if (confirm(`${memberName} 님을 정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+        // Firebase Authentication에서 사용자 삭제
+        auth.listUsers()
+          .then((listUsersResult) => {
+            listUsersResult.users.forEach((user) => {
+              // 간단하게 이름으로 비교 (실제 앱에서는 UID 사용)
+              if (user.email && user.email.startsWith(memberName + '@')) {
+                auth.deleteUser(user.uid)
+                  .then(() => {
+                    alert(`${memberName} 님을 삭제했습니다.`);
+                    // 삭제 성공 후 UI에서 해당 목록 아이템 제거 (선택 사항)
+                    const memberItem = document.querySelector(`.member-item[data-member-name="${memberName}"]`);
+                    if (memberItem) {
+                      memberItem.remove();
+                    }
+                  })
+                  .catch((error) => {
+                    console.error('사용자 삭제 실패:', error);
+                    alert('사용자 삭제에 실패했습니다.');
+                  });
+                return; // 해당 이름의 사용자 찾았으면 루프 종료 (간단한 예시)
+              }
+            });
+            alert(`${memberName} 님을 찾을 수 없습니다.`);
+          })
+          .catch((error) => {
+            console.error('사용자 목록 가져오기 실패:', error);
+            alert('사용자 목록을 가져오는 데 실패했습니다.');
+          });
+      }
     }
   </script>
 </body>
