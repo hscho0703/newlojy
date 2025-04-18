@@ -3,23 +3,14 @@
 <head>
   <title>로그인</title>
   <style>
-    /* ... (기존 CSS 코드는 그대로 유지) ... */
-    .google-login-button {
-      background-color: #4285f4;
-      color: #fff;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 20px;
-    }
-
-    .google-login-button:hover {
-      background-color: #357ae8;
-    }
+    body { font-family: "Malgun Gothic", sans-serif; background-color: #192a3e; display: flex; justifyContent: center; alignItems: center; height: 100vh; margin: 0; flexDirection: column; }
+    .logo-container { textAlign: center; marginBottom: 20px; } .logo-text { color: #ffffff; fontSize: 2.5em; fontWeight: bold; marginBottom: 5px; } .church-info { color: #bdc3c7; fontSize: 0.9em; marginBottom: 30px; }
+    .login-container { backgroundColor: #273c5e; padding: 40px; borderRadius: 5px; boxShadow: 0 0 10px rgba(0, 0, 0, 0.5); textAlign: center; width: 300px; } h1 { color: #ffffff; marginBottom: 30px; }
+    .input-group { marginBottom: 20px; textAlign: left; } label { display: block; color: #ffffff; marginBottom: 5px; } input[type="text"], input[type="password"] { width: calc(100% - 20px); padding: 10px; border: 1px solid #4a658a; borderRadius: 3px; backgroundColor: #34495e; color: #ffffff; boxSizing: border-box; }
+    button[type="submit"], .google-login-button { backgroundColor: #e67e22; color: #ffffff; padding: 10px 20px; border: none; borderRadius: 5px; cursor: pointer; fontSize: 16px; transition: background-color 0.3s ease; margin-top: 10px; } button[type="submit"]:hover, .google-login-button:hover { backgroundColor: #d35400; }
+    p { color: #bdc3c7; marginTop: 20px; } a { color: #f1c40f; textDecoration: none; } a:hover { textDecoration: underline; } .error-message { color: #f44336; marginTop: 10px; textAlign: center; }
+    .google-login-button { background-color: #4285f4; } .google-login-button:hover { background-color: #357ae8; }
   </style>
-
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
   <script>
@@ -28,63 +19,43 @@
       authDomain: "ynlojy.firebaseapp.com",
       projectId: "ynlojy",
       storageBucket: "ynlojy.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Firebase 콘솔에서 확인 후 입력
-      appId: "YOUR_APP_ID" // Firebase 콘솔에서 확인 후 입력
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <- 실제 값으로 변경
+      appId: "YOUR_APP_ID" // <- 실제 값으로 변경
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
     auth.onAuthStateChanged(function(user) {
       if (user) {
-        // 이미 로그인된 사용자는 회원 정보 페이지로 이동
-        if (window.location.pathname !== '/newlojy/member_info.html') { // 현재 페이지가 member_info.html이 아닐 때만 이동
-          window.location.href = 'member_info.html';
-        }
-      } else {
-        // 로그아웃된 사용자는 로그인 폼 표시 (기존 로직 유지)
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-          loginForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMessageDiv = document.getElementById('error-message');
-
-            auth.signInWithEmailAndPassword(username + "@lojy.com", password)
-              .then((userCredential) => {
-                errorMessageDiv.style.display = 'none';
-                window.location.href = 'member_info.html';
-              })
-              .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                errorMessageDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
-                errorMessageDiv.style.display = 'block';
-              });
-          });
-        }
+        window.location.href = 'member_info.html';
       }
     });
+
+    function signInWithEmailPassword() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessageDiv = document.getElementById('error-message');
+      auth.signInWithEmailAndPassword(username + "@lojy.com", password)
+        .then((userCredential) => {
+          errorMessageDiv.style.display = 'none';
+          window.location.href = 'member_info.html';
+        })
+        .catch((error) => {
+          errorMessageDiv.textContent = `로그인 실패: ${error.message} (${error.code})`;
+          errorMessageDiv.style.display = 'block';
+        });
+    }
 
     function googleSignIn() {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then((result) => {
-          const user = result.user;
-          console.log('Google 로그인 성공:', user);
-          // onAuthStateChanged 리스너에 의해 member_info.html로 이동합니다.
+          // Google 로그인 성공, onAuthStateChanged 리스너가 member_info.html로 이동 처리
         }).catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          document.getElementById('error-message').textContent = `Google 로그인 실패: ${errorMessage} (${errorCode})`;
+          document.getElementById('error-message').textContent = `Google 로그인 실패: ${error.message} (${error.code})`;
           document.getElementById('error-message').style.display = 'block';
         });
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // DOMContentLoaded 시에는 특별한 동작 없음 (onAuthStateChanged에서 처리)
-    });
   </script>
 </head>
 <body>
@@ -94,7 +65,7 @@
   </div>
   <div class="login-container">
     <h1>로그인</h1>
-    <form id="loginForm">
+    <form id="loginForm" onsubmit="event.preventDefault(); signInWithEmailPassword();">
       <div class="input-group">
         <label for="username">아이디:</label>
         <input type="text" id="username" name="username">
@@ -106,9 +77,7 @@
       <button type="submit">로그인</button>
       <p>아직 회원이 아니신가요? <a href="register.html">회원 가입</a></p>
     </form>
-
     <button class="google-login-button" onclick="googleSignIn()">Google로 로그인</button>
-
     <div id="error-message" class="error-message" style="display: none;"></div>
   </div>
 </body>
