@@ -34,54 +34,44 @@
       if (!user) {
         window.location.href = 'index.html';
       } else {
-        loadUserList();
+        loadUserInfo(user); // 변경된 함수 호출
       }
     });
 
-    function loadUserList() {
+    function loadUserInfo(user) { // 함수 이름 변경
       const userListContainer = document.getElementById('user-list');
       userListContainer.innerHTML = '';
 
-      db.ref('users').orderByChild('score').once('value', snapshot => {
-        const usersData = snapshot.val();
-        if (usersData) {
-          const usersArray = Object.entries(usersData).map(([userId, userData]) => ({
-            id: userId,
-            ...userData
-          }));
+      db.ref('users/' + user.uid).once('value', snapshot => {
+        const userData = snapshot.val();
+        if (userData) {
+          const listItem = document.createElement('li');
+          listItem.classList.add('user-item');
 
-          usersArray.sort((a, b) => b.score - a.score);
-          usersArray.forEach((user, index) => {
-            user.rank = index + 1;
-          });
+          const photo = document.createElement('img');
+          photo.classList.add('user-photo');
+          photo.src = userData.photoURL || 'default_photo.png';
+          photo.alt = userData.name;
 
-          usersArray.forEach(user => {
-            const listItem = document.createElement('li');
-            listItem.classList.add('user-item');
+          const details = document.createElement('div');
+          details.classList.add('user-details');
 
-            const photo = document.createElement('img');
-            photo.classList.add('user-photo');
-            photo.src = user.photoURL || 'default_photo.png';
-            photo.alt = user.name;
+          const nameElement = document.createElement('div');
+          nameElement.classList.add('user-name');
+          nameElement.textContent = userData.name;
 
-            const details = document.createElement('div');
-            details.classList.add('user-details');
+          const scoreRankElement = document.createElement('div');
+          scoreRankElement.classList.add('user-score-rank');
+          scoreRankElement.textContent = `점수: ${userData.score} | 등수: ${userData.rank}`;
 
-            const nameElement = document.createElement('div');
-            nameElement.classList.add('user-name');
-            nameElement.textContent = user.name;
+          details.appendChild(nameElement);
+          details.appendChild(scoreRankElement);
 
-            const scoreRankElement = document.createElement('div');
-            scoreRankElement.classList.add('user-score-rank');
-            scoreRankElement.textContent = `점수: ${user.score} | 등수: ${user.rank}`;
-
-            details.appendChild(nameElement);
-            details.appendChild(scoreRankElement);
-
-            listItem.appendChild(photo);
-            listItem.appendChild(details);
-            userListContainer.appendChild(listItem);
-          });
+          listItem.appendChild(photo);
+          listItem.appendChild(details);
+          userListContainer.appendChild(listItem);
+        } else {
+          userListContainer.textContent = '회원 정보가 없습니다.';
         }
       });
     }
