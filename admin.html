@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>관리자 페이지</title>
+  <style>
+    body {
+      font-family: "Malgun Gothic", sans-serif;
+      background-color: #192a3e;
+      color: #ffffff;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .admin-container {
+      background-color: #273c5e;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .member-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .member-item {
+      border-bottom: 1px solid #4a658a;
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .member-item:last-child {
+      border-bottom: none;
+    }
+
+    .profile-image-small {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #34495e;
+      margin-right: 15px;
+      overflow: hidden;
+    }
+
+    .profile-image-small img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .member-details {
+      flex-grow: 1;
+    }
+
+    .member-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .member-score {
+      margin-bottom: 5px;
+    }
+
+    .member-actions button,
+    .member-actions input[type="number"] {
+      margin-left: 10px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .member-actions button {
+      background-color: #e67e22;
+      color: #ffffff;
+      transition: background-color 0.3s ease;
+    }
+
+    .member-actions button:hover {
+      background-color: #d35400;
+    }
+
+    .member-actions .delete-button {
+      background-color: #e74c3c;
+    }
+
+    .member-actions .delete-button:hover {
+      background-color: #c0392b;
+    }
+
+    .member-actions input[type="file"] {
+      background-color: #3498db;
+      color: #ffffff;
+    }
+
+    .member-actions input[type="number"] {
+      width: 60px;
+      color: #ffffff;
+      background-color: #34495e;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>관리자 페이지</h1>
+    <ul class="member-list">
+      <li class="member-item" data-member-id="hong">
+        <div class="profile-image-small">
+          <img src="placeholder.png" alt="회원 사진">
+        </div>
+        <div class="member-details">
+          <div class="member-name">홍길동</div>
+          <div class="member-score">점수: <strong id="score-hong">100</strong></div>
+          <div>등수: 1</div>
+        </div>
+        <div class="member-actions">
+          <input type="file" accept="image/*">
+          <button>삭제</button>
+          <input type="number" class="add-score-input" placeholder="점수">
+          <button class="add-score-button">추가</button>
+          <button class="delete-button">회원 삭제</button>
+        </div>
+      </li>
+      <li class="member-item" data-member-id="kim">
+        <div class="profile-image-small">
+          <img src="placeholder.png" alt="회원 사진">
+        </div>
+        <div class="member-details">
+          <div class="member-name">김철수</div>
+          <div class="member-score">점수: <strong id="score-kim">80</strong></div>
+          <div>등수: 2</div>
+        </div>
+        <div class="member-actions">
+          <input type="file" accept="image/*">
+          <button>삭제</button>
+          <input type="number" class="add-score-input" placeholder="점수">
+          <button class="add-score-button">추가</button>
+          <button class="delete-button">회원 삭제</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const memberList = document.querySelector('.member-list');
+
+      memberList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('add-score-button')) {
+          const memberItem = event.target.closest('.member-item');
+          const scoreElement = memberItem.querySelector('.member-score strong');
+          const addScoreInput = memberItem.querySelector('.add-score-input');
+          const currentScore = parseInt(scoreElement.textContent);
+          const addedScore = parseInt(addScoreInput.value);
+
+          if (!isNaN(addedScore)) {
+            const newScore = currentScore + addedScore;
+            scoreElement.textContent = newScore;
+            addScoreInput.value = ''; // 입력 필드 초기화
+          } else {
+            alert('추가할 점수를 숫자로 입력해주세요.');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
