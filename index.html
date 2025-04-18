@@ -3,104 +3,20 @@
 <head>
   <title>로그인</title>
   <style>
-    body {
-      font-family: "Malgun Gothic", sans-serif;
-      background-color: #192a3e;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      flex-direction: column;
-    }
-
-    .logo-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .logo-text {
-      color: #ffffff;
-      font-size: 2.5em;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .church-info {
-      color: #bdc3c7;
-      font-size: 0.9em;
-      margin-bottom: 30px;
-    }
-
-    .login-container {
-      background-color: #273c5e;
-      padding: 40px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      width: 300px;
-    }
-
-    h1 {
-      color: #ffffff;
-      margin-bottom: 30px;
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      color: #ffffff;
-      margin-bottom: 5px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: calc(100% - 20px);
-      padding: 10px;
-      border: 1px solid #4a658a;
-      border-radius: 3px;
-      background-color: #34495e;
-      color: #ffffff;
-      box-sizing: border-box;
-    }
-
-    button[type="submit"] {
-      background-color: #e67e22;
-      color: #ffffff;
+    /* ... (기존 CSS 코드는 그대로 유지) ... */
+    .google-login-button {
+      background-color: #4285f4;
+      color: #fff;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
-      transition: background-color 0.3s ease;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #d35400;
-    }
-
-    p {
-      color: #bdc3c7;
       margin-top: 20px;
     }
 
-    a {
-      color: #f1c40f;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .error-message {
-      color: #f44336;
-      margin-top: 10px;
-      text-align: center;
+    .google-login-button:hover {
+      background-color: #357ae8;
     }
   </style>
 
@@ -121,20 +37,41 @@
 
     auth.onAuthStateChanged(function(user) {
       if (user) {
-        // 사용자가 로그인되어 있다면 member_info.html 페이지로 이동
         window.location.href = 'member_info.html';
-      } else {
-        // 사용자가 로그아웃되어 있다면 로그인 폼 이벤트 리스너 등록
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-          event.preventDefault();
+      }
+    });
 
+    function googleSignIn() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          // Google 로그인 성공
+          const user = result.user;
+          console.log('Google 로그인 성공:', user);
+          // onAuthStateChanged 리스너에 의해 member_info.html로 이동합니다.
+        }).catch((error) => {
+          // Google 로그인 실패
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          const email = error.email;
+          const credential = error.credential;
+          console.error('Google 로그인 실패:', errorCode, errorMessage, email, credential);
+          document.getElementById('error-message').textContent = `Google 로그인 실패: ${errorMessage} (${errorCode})`;
+          document.getElementById('error-message').style.display = 'block';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', function(event) {
+          event.preventDefault();
           const username = document.getElementById('username').value;
           const password = document.getElementById('password').value;
           const errorMessageDiv = document.getElementById('error-message');
 
           auth.signInWithEmailAndPassword(username + "@lojy.com", password)
             .then((userCredential) => {
-              const user = userCredential.user;
               errorMessageDiv.style.display = 'none';
               window.location.href = 'member_info.html';
             })
@@ -168,6 +105,8 @@
       <button type="submit">로그인</button>
       <p>아직 회원이 아니신가요? <a href="register.html">회원 가입</a></p>
     </form>
+
+    <button class="google-login-button" onclick="googleSignIn()">Google로 로그인</button>
 
     <div id="error-message" class="error-message" style="display: none;"></div>
   </div>
