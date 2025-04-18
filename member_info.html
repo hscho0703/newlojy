@@ -7,53 +7,24 @@
       font-family: "Malgun Gothic", sans-serif;
       background-color: #192a3e;
       color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
+      margin: 20px;
+      text-align: center;
     }
 
-    .member-card {
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .info-box {
       background-color: #273c5e;
-      padding: 30px;
+      padding: 20px;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      width: 300px;
-    }
-
-    .profile-image {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background-color: #34495e; /* 임시 배경색 */
       margin-bottom: 20px;
-      overflow: hidden; /* 이미지가 둥근 영역을 벗어나지 않도록 */
     }
 
-    .profile-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover; /* 이미지 비율 유지하며 채우기 */
-    }
-
-    .member-name {
-      font-size: 1.5em;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .member-info {
-      margin-bottom: 15px;
-    }
-
-    .member-info strong {
-      color: #f1c40f;
-    }
-
-    .logout-button {
-      background-color: #e74c3c;
+    button {
+      background-color: #e67e22;
       color: #ffffff;
       padding: 10px 20px;
       border: none;
@@ -61,17 +32,19 @@
       cursor: pointer;
       font-size: 16px;
       transition: background-color 0.3s ease;
+      margin: 10px;
     }
 
-    .logout-button:hover {
-      background-color: #c0392b;
+    button:hover {
+      background-color: #d35400;
     }
   </style>
+
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyD9BaFvsddvHllPtiu5sFstz_wj999TEU0",
+      apiKey: "YOUR_API_KEY",
       authDomain: "ynlojy.firebaseapp.com",
       projectId: "ynlojy",
       storageBucket: "ynlojy.appspot.com",
@@ -84,41 +57,49 @@
   </script>
 </head>
 <body>
-  <div class="member-card">
-    <div class="profile-image">
-      <img src="placeholder.png" alt="프로필 사진">
-    </div>
-    <div class="member-name" id="member-name">이름 표시</div>
-    <div class="member-info">점수: <strong id="member-score">점수 표시</strong></div>
-    <div class="member-info">등수: <strong id="member-rank">등수 표시</strong></div>
-    <button class="logout-button" id="logout-button">로그아웃</button>
+  <h1>회원 정보</h1>
+  <div id="user-info" class="info-box">
+    <p>사용자 아이디: <span id="uid"></span></p>
+    <p>이메일: <span id="email"></span></p>
   </div>
+
+  <button onclick="signOut()">로그아웃</button>
+  <button id="admin-button" style="display: none;" onclick="goToAdminPage()">관리자 페이지</button>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const memberNameElement = document.getElementById('member-name');
-      const logoutButton = document.getElementById('logout-button');
+      const uidSpan = document.getElementById('uid');
+      const emailSpan = document.getElementById('email');
+      const adminButton = document.getElementById('admin-button');
 
-      auth.onAuthStateChanged(user => {
+      auth.onAuthStateChanged(function(user) {
         if (user) {
-          // 로그인한 사용자
-          memberNameElement.textContent = user.email.split('@')[0]; // 이메일 앞부분을 이름으로 표시
+          uidSpan.textContent = user.uid;
+          emailSpan.textContent = user.email;
+
+          // 현재 로그인한 사용자가 "조희성" (이메일 앞부분) 이면 관리자 버튼 표시
+          if (user.email && user.email.startsWith('조희성@')) {
+            adminButton.style.display = 'inline-block';
+          } else if (user.email && user.email.startsWith('hscho0703@')) {
+            adminButton.style.display = 'inline-block'; // 필요하다면 다른 관리자도 추가
+          }
         } else {
-          // 로그아웃된 사용자
-          window.location.href = 'index.html'; // 로그인 페이지로 리디렉션
+          window.location.href = 'index.html'; // 로그인되지 않은 경우 로그인 페이지로 이동
         }
       });
-
-      logoutButton.addEventListener('click', function() {
-        auth.signOut().then(() => {
-          // 로그아웃 성공
-          window.location.href = 'index.html'; // 로그인 페이지로 리디렉션
-        }).catch((error) => {
-          console.error("로그아웃 실패:", error);
-          alert("로그아웃에 실패했습니다.");
-        });
-      });
     });
+
+    function signOut() {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      }).catch((error) => {
+        console.error('로그아웃 실패:', error);
+      });
+    }
+
+    function goToAdminPage() {
+      window.location.href = 'admin.html';
+    }
   </script>
 </body>
 </html>
