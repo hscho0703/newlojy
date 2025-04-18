@@ -3,90 +3,32 @@
 <head>
   <title>회원 정보</title>
   <style>
-    body {
-      font-family: "Malgun Gothic", sans-serif;
-      background-color: #192a3e;
-      color: #ffffff;
-      margin: 20px;
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 30px;
-    }
-
-    .info-box {
-      background-color: #273c5e;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      margin-bottom: 20px;
-    }
-
-    button {
-      background-color: #e67e22;
-      color: #ffffff;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-      margin: 10px;
-    }
-
-    button:hover {
-      background-color: #d35400;
-    }
+    body { font-family: "Malgun Gothic", sans-serif; background-color: #192a3e; color: #ffffff; margin: 20px; textAlign: center; }
+    h1 { marginBottom: 30px; } .info-box { backgroundColor: #273c5e; padding: 20px; borderRadius: 5px; boxShadow: 0 0 10px rgba(0, 0, 0, 0.5); marginBottom: 20px; }
+    button { backgroundColor: #e67e22; color: #ffffff; padding: 10px 20px; border: none; borderRadius: 5px; cursor: pointer; fontSize: 16px; transition: background-color 0.3s ease; margin: 10px; } button:hover { backgroundColor: #d35400; }
   </style>
-
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
+      apiKey: "AIzaSyD9BaFvsddvHllPtiu5sFstz_wj999TEU0",
       authDomain: "ynlojy.firebaseapp.com",
       projectId: "ynlojy",
       storageBucket: "ynlojy.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <- 실제 값으로 변경
+      appId: "YOUR_APP_ID" // <- 실제 값으로 변경
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-  </script>
-</head>
-<body>
-  <h1>회원 정보</h1>
-  <div id="user-info" class="info-box">
-    <p>사용자 아이디: <span id="uid"></span></p>
-    <p>이메일: <span id="email"></span></p>
-  </div>
 
-  <button onclick="signOut()">로그아웃</button>
-  <button id="admin-button" style="display: none;" onclick="goToAdminPage()">관리자 페이지</button>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const uidSpan = document.getElementById('uid');
-      const emailSpan = document.getElementById('email');
-      const adminButton = document.getElementById('admin-button');
-
-      auth.onAuthStateChanged(function(user) {
-        if (user) {
-          uidSpan.textContent = user.uid;
-          emailSpan.textContent = user.email;
-
-          // 현재 로그인한 사용자가 "조희성" (이메일 앞부분) 이면 관리자 버튼 표시
-          if (user.email && user.email.startsWith('조희성@')) {
-            adminButton.style.display = 'inline-block';
-          } else if (user.email && user.email.startsWith('hscho0703@')) {
-            adminButton.style.display = 'inline-block'; // 필요하다면 다른 관리자도 추가
-          }
-        } else {
-          window.location.href = 'index.html'; // 로그인되지 않은 경우 로그인 페이지로 이동
-        }
-      });
+    auth.onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('uid').textContent = user.uid;
+        document.getElementById('email').textContent = user.email;
+        // 관리자 버튼 표시는 필요하다면 여기에 추가
+      }
     });
 
     function signOut() {
@@ -96,10 +38,14 @@
         console.error('로그아웃 실패:', error);
       });
     }
-
-    function goToAdminPage() {
-      window.location.href = 'admin.html';
-    }
   </script>
-</body>
+</head>
+<body>
+  <h1>회원 정보</h1>
+  <div id="user-info" class="info-box">
+    <p>사용자 아이디: <span id="uid"></span></p>
+    <p>이메일: <span id="email"></span></p>
+  </div>
+  <button onclick="signOut()">로그아웃</button>
+  </body>
 </html>
