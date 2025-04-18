@@ -108,16 +108,45 @@
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
+      apiKey: "AIzaSyD9BaFvsddvHllPtiu5sFstz_wj999TEU0",
       authDomain: "ynlojy.firebaseapp.com",
       projectId: "ynlojy",
       storageBucket: "ynlojy.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Firebase 콘솔에서 확인 후 입력
+      appId: "YOUR_APP_ID" // Firebase 콘솔에서 확인 후 입력
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        // 사용자가 로그인되어 있다면 member_info.html 페이지로 이동
+        window.location.href = 'member_info.html';
+      } else {
+        // 사용자가 로그아웃되어 있다면 로그인 폼 이벤트 리스너 등록
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          const errorMessageDiv = document.getElementById('error-message');
+
+          auth.signInWithEmailAndPassword(username + "@lojy.com", password)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              errorMessageDiv.style.display = 'none';
+              window.location.href = 'member_info.html';
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              errorMessageDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
+              errorMessageDiv.style.display = 'block';
+            });
+        });
+      }
+    });
   </script>
 </head>
 <body>
@@ -142,30 +171,5 @@
 
     <div id="error-message" class="error-message" style="display: none;"></div>
   </div>
-
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
-
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const errorMessageDiv = document.getElementById('error-message');
-
-      auth.signInWithEmailAndPassword(username + "@lojy.com", password)
-        .then((userCredential) => {
-          // 로그인 성공
-          const user = userCredential.user;
-          errorMessageDiv.style.display = 'none'; // 오류 메시지 숨김
-          window.location.href = 'member_info.html'; // 회원 정보 페이지로 이동
-        })
-        .catch((error) => {
-          // 로그인 실패
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          errorMessageDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
-          errorMessageDiv.style.display = 'block';
-        });
-    });
-  </script>
 </body>
 </html>
