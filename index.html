@@ -96,33 +96,7 @@
     a:hover {
       text-decoration: underline;
     }
-
-    .error {
-      color: #f44336;
-      margin-top: 10px;
-    }
-
-    .success {
-      color: #4caf50;
-      margin-top: 10px;
-    }
   </style>
-
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyD9BaFvsddvHllPtiu5sFstz_wj999TEU0",
-      authDomain: "ynlojy.firebaseapp.com",
-      projectId: "ynlojy",
-      storageBucket: "ynlojy.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-  </script>
 </head>
 <body>
   <div class="logo-container">
@@ -133,7 +107,7 @@
     <h1>로그인</h1>
     <form id="loginForm">
       <div class="input-group">
-        <label for="username">이름:</label>
+        <label for="username">아이디:</label>
         <input type="text" id="username" name="username">
       </div>
       <div class="input-group">
@@ -144,41 +118,13 @@
       <p>아직 회원이 아니신가요? <a href="register.html">회원 가입</a></p>
     </form>
 
-    <div id="loginResult" style="display: none;"></div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
-      const loginResultDiv = document.getElementById('loginResult');
-
-      loginForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        loginResultDiv.style.display = 'block';
-        loginResultDiv.textContent = '로그인 시도 중...';
-        loginResultDiv.className = '';
-
-        auth.signInWithEmailAndPassword(username + "@lojy.com", password)
-          .then((userCredential) => {
-            const user = userCredential.user;
-            loginResultDiv.textContent = '로그인 성공!';
-            loginResultDiv.className = 'success';
-            setTimeout(() => {
-              window.location.href = 'member_info.html';
-            }, 1500);
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            loginResultDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
-            loginResultDiv.className = 'error';
-          });
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
+        // 여기에 로그인 처리 로직을 추가해야 합니다.
+        // 현재는 폼 제출을 막고 아무런 동작도 하지 않습니다.
       });
-    });
-  </script>
+    </script>
+  </div>
 </body>
 </html>
