@@ -37,7 +37,33 @@
 
     auth.onAuthStateChanged(function(user) {
       if (user) {
-        window.location.href = 'member_info.html';
+        // 이미 로그인된 사용자는 회원 정보 페이지로 이동
+        if (window.location.pathname !== '/newlojy/member_info.html') { // 현재 페이지가 member_info.html이 아닐 때만 이동
+          window.location.href = 'member_info.html';
+        }
+      } else {
+        // 로그아웃된 사용자는 로그인 폼 표시 (기존 로직 유지)
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+          loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessageDiv = document.getElementById('error-message');
+
+            auth.signInWithEmailAndPassword(username + "@lojy.com", password)
+              .then((userCredential) => {
+                errorMessageDiv.style.display = 'none';
+                window.location.href = 'member_info.html';
+              })
+              .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                errorMessageDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
+                errorMessageDiv.style.display = 'block';
+              });
+          });
+        }
       }
     });
 
@@ -45,44 +71,19 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then((result) => {
-          // Google 로그인 성공
           const user = result.user;
           console.log('Google 로그인 성공:', user);
           // onAuthStateChanged 리스너에 의해 member_info.html로 이동합니다.
         }).catch((error) => {
-          // Google 로그인 실패
           const errorCode = error.code;
           const errorMessage = error.message;
-          const email = error.email;
-          const credential = error.credential;
-          console.error('Google 로그인 실패:', errorCode, errorMessage, email, credential);
           document.getElementById('error-message').textContent = `Google 로그인 실패: ${errorMessage} (${errorCode})`;
           document.getElementById('error-message').style.display = 'block';
         });
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
-      if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
-          event.preventDefault();
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
-          const errorMessageDiv = document.getElementById('error-message');
-
-          auth.signInWithEmailAndPassword(username + "@lojy.com", password)
-            .then((userCredential) => {
-              errorMessageDiv.style.display = 'none';
-              window.location.href = 'member_info.html';
-            })
-            .catch((error) => {
-              const errorCode = error.code;
-              const errorMessage = error.message;
-              errorMessageDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
-              errorMessageDiv.style.display = 'block';
-            });
-        });
-      }
+      // DOMContentLoaded 시에는 특별한 동작 없음 (onAuthStateChanged에서 처리)
     });
   </script>
 </head>
