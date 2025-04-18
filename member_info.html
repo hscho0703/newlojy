@@ -42,6 +42,8 @@
       const userListContainer = document.getElementById('user-list');
       userListContainer.innerHTML = '';
 
+      console.log("Current User Object:", auth.currentUser);
+
       db.ref('users/' + user.uid + '/name').once('value', snapshot => {
         console.log("Specific Data Snapshot:", snapshot);
         const name = snapshot.val();
