@@ -96,7 +96,29 @@
     a:hover {
       text-decoration: underline;
     }
+
+    .error-message {
+      color: #f44336;
+      margin-top: 10px;
+      text-align: center;
+    }
   </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "ynlojy.firebaseapp.com",
+      projectId: "ynlojy",
+      storageBucket: "ynlojy.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+  </script>
 </head>
 <body>
   <div class="logo-container">
@@ -118,13 +140,32 @@
       <p>아직 회원이 아니신가요? <a href="register.html">회원 가입</a></p>
     </form>
 
-    <script>
-      document.getElementById('loginForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
-        // 여기에 로그인 처리 로직을 추가해야 합니다.
-        // 현재는 폼 제출을 막고 아무런 동작도 하지 않습니다.
-      });
-    </script>
+    <div id="error-message" class="error-message" style="display: none;"></div>
   </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessageDiv = document.getElementById('error-message');
+
+      auth.signInWithEmailAndPassword(username + "@lojy.com", password)
+        .then((userCredential) => {
+          // 로그인 성공
+          const user = userCredential.user;
+          errorMessageDiv.style.display = 'none'; // 오류 메시지 숨김
+          window.location.href = 'member_info.html'; // 회원 정보 페이지로 이동
+        })
+        .catch((error) => {
+          // 로그인 실패
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          errorMessageDiv.textContent = `로그인 실패: ${errorMessage} (${errorCode})`;
+          errorMessageDiv.style.display = 'block';
+        });
+    });
+  </script>
 </body>
 </html>
