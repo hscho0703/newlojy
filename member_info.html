@@ -42,38 +42,14 @@
       const userListContainer = document.getElementById('user-list');
       userListContainer.innerHTML = '';
 
-      db.ref('users/' + user.uid).once('value', snapshot => {
-        console.log("Data Snapshot:", snapshot);
-        const userData = snapshot.val();
-        console.log("User Data:", userData);
-        if (userData) {
-          const listItem = document.createElement('li');
-          listItem.classList.add('user-item');
-
-          const photo = document.createElement('img');
-          photo.classList.add('user-photo');
-          photo.src = userData.photoURL || 'default_photo.png';
-          photo.alt = userData.name;
-
-          const details = document.createElement('div');
-          details.classList.add('user-details');
-
-          const nameElement = document.createElement('div');
-          nameElement.classList.add('user-name');
-          nameElement.textContent = userData.name;
-
-          const scoreRankElement = document.createElement('div');
-          scoreRankElement.classList.add('user-score-rank');
-          scoreRankElement.textContent = `점수: ${userData.score} | 등수: ${userData.rank}`;
-
-          details.appendChild(nameElement);
-          details.appendChild(scoreRankElement);
-
-          listItem.appendChild(photo);
-          listItem.appendChild(details);
-          userListContainer.appendChild(listItem);
+      db.ref('users/' + user.uid + '/name').once('value', snapshot => {
+        console.log("Specific Data Snapshot:", snapshot);
+        const name = snapshot.val();
+        console.log("Retrieved Name:", name);
+        if (name) {
+          userListContainer.textContent = `이름: ${name}`;
         } else {
-          userListContainer.textContent = '회원 정보가 없습니다.';
+          userListContainer.textContent = '이름 정보가 없습니다.';
         }
       });
     }
