@@ -3,45 +3,20 @@
 <head>
   <title>회원 정보</title>
   <style>
-    body {
-      font-family: "Malgun Gothic", sans-serif;
-      background-color: #192a3e;
-      color: #ffffff;
-      margin: 20px;
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 30px;
-    }
-
-    .info-box {
-      background-color: #273c5e;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      margin-bottom: 20px;
-    }
-
-    button {
-      background-color: #e67e22;
-      color: #ffffff;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-      margin: 10px;
-    }
-
-    button:hover {
-      background-color: #d35400;
-    }
+    body { font-family: "Malgun Gothic", sans-serif; background-color: #192a3e; color: #ffffff; margin: 20px; text-align: center; }
+    h1 { margin-bottom: 30px; }
+    .user-list { list-style: none; padding: 0; }
+    .user-item { background-color: #273c5e; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); margin-bottom: 15px; display: flex; align-items: center; }
+    .user-photo { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
+    .user-details { flex-grow: 1; text-align: left; }
+    .user-name { font-weight: bold; margin-bottom: 5px; }
+    .user-score-rank { font-size: 0.9em; color: #bdc3c7; }
+    .sign-out-button { background-color: #e67e22; color: #ffffff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease; margin-top: 20px; }
+    .sign-out-button:hover { background-color: #d35400; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
-  <script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-database-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script> <script>
     const firebaseConfig = {
       apiKey: "AIzaSyD9BaFvsddvHllPtiu5sFstz_wj999TEU0",
       authDomain: "ynlojy.firebaseapp.com",
@@ -52,16 +27,112 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.database(); // Realtime Database 사용 시
+    // const db = firebase.firestore(); // Firestore 사용 시
 
-    auth.onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(user => {
       if (!user) {
         window.location.href = 'index.html';
       } else {
-        document.getElementById('uid').textContent = user.uid;
-        document.getElementById('email').textContent = user.email;
-        // 관리자 버튼 표시는 필요하다면 여기에 추가
+        // 사용자 정보 표시는 그대로 유지 (선택 사항)
+        // document.getElementById('uid').textContent = user.uid;
+        // document.getElementById('email').textContent = user.email;
+        loadUserList();
       }
     });
+
+    function loadUserList() {
+      const userListContainer = document.getElementById('user-list');
+      userListContainer.innerHTML = ''; // 기존 목록 비우기
+
+      // Realtime Database에서 데이터 가져오기
+      db.ref('users').orderByChild('score').once('value', snapshot => {
+        const usersData = snapshot.val();
+        if (usersData) {
+          const usersArray = Object.entries(usersData).map(([userId, userData]) => ({
+            id: userId,
+            ...userData
+          }));
+
+          // 점수 기준으로 내림차순 정렬하여 등수 계산
+          usersArray.sort((a, b) => b.score - a.score);
+          usersArray.forEach((user, index) => {
+            user.rank = index + 1;
+          });
+
+          // 사용자 목록 HTML 생성
+          usersArray.forEach(user => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('user-item');
+
+            const photo = document.createElement('img');
+            photo.classList.add('user-photo');
+            photo.src = user.photoURL || 'default_photo.png'; // 기본 이미지 처리
+            photo.alt = user.name;
+
+            const details = document.createElement('div');
+            details.classList.add('user-details');
+
+            const nameElement = document.createElement('div');
+            nameElement.classList.add('user-name');
+            nameElement.textContent = user.name;
+
+            const scoreRankElement = document.createElement('div');
+            scoreRankElement.classList.add('user-score-rank');
+            scoreRankElement.textContent = `점수: ${user.score} | 등수: ${user.rank}`;
+
+            details.appendChild(nameElement);
+            details.appendChild(scoreRankElement);
+
+            listItem.appendChild(photo);
+            listItem.appendChild(details);
+            userListContainer.appendChild(listItem);
+          });
+        }
+      });
+
+      // Firestore에서 데이터 가져오기 (예시)
+      /*
+      db.collection('users').orderBy('score', 'desc').get().then(querySnapshot => {
+        const usersArray = [];
+        querySnapshot.forEach(doc => {
+          usersArray.push({ id: doc.id, ...doc.data() });
+        });
+
+        usersArray.forEach((user, index) => {
+          user.rank = index + 1;
+        });
+
+        usersArray.forEach(user => {
+          const listItem = document.createElement('li');
+          listItem.classList.add('user-item');
+
+          const photo = document.createElement('img');
+          photo.classList.add('user-photo');
+          photo.src = user.photoURL || 'default_photo.png'; // 기본 이미지 처리
+          photo.alt = user.name;
+
+          const details = document.createElement('div');
+          details.classList.add('user-details');
+
+          const nameElement = document.createElement('div');
+          nameElement.classList.add('user-name');
+          nameElement.textContent = user.name;
+
+          const scoreRankElement = document.createElement('div');
+          scoreRankElement.classList.add('user-score-rank');
+          scoreRankElement.textContent = `점수: ${user.score} | 등수: ${user.rank}`;
+
+          details.appendChild(nameElement);
+          details.appendChild(scoreRankElement);
+
+          listItem.appendChild(photo);
+          listItem.appendChild(details);
+          userListContainer.appendChild(listItem);
+        });
+      });
+      */
+    }
 
     function signOut() {
       auth.signOut().then(() => {
@@ -74,10 +145,8 @@
 </head>
 <body>
   <h1>회원 정보</h1>
-  <div id="user-info" class="info-box">
-    <p>사용자 아이디: <span id="uid"></span></p>
-    <p>이메일: <span id="email"></span></p>
-  </div>
-  <button onclick="signOut()">로그아웃</button>
-  </body>
+  <ul id="user-list">
+    </ul>
+  <button class="sign-out-button" onclick="signOut()">로그아웃</button>
+</body>
 </html>
